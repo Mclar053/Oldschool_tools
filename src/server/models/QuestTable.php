@@ -1,5 +1,7 @@
 <?php
 
+include "Table.php";
+
 /**
  * Created by PhpStorm.
  * User: MatthewClark
@@ -46,8 +48,8 @@ class QuestTable extends Table
 
     //Get all entries from the blog_entry table
     public function getAllQuests(){
-        $returnSQL = "SELECT blog_id, blog_title, SUBSTRING(blog_text, 1, 150) AS intro FROM blog_entry";
-        return $this->makeStatement($returnSQL);
+        $returnSQL = "SELECT * FROM QUESTS";
+        return $this->makeStatement($returnSQL,null, 0);
     }
 
     //Get a particular entry from an id
