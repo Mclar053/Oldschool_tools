@@ -9,15 +9,24 @@
 class QuestTable extends Table
 {
 
-    private $QUEST_TABLE_NAME = "";
-    private $QUEST_SKILL_REQUIREMENTS_TABLE_NAME = "";
-    private $QUEST_SKILL_REWARDS_TABLE_NAME = "";
+    private $QUEST_TABLE_NAME = "QUESTS";
+    private $QUEST_SKILL_REQUIREMENTS_TABLE_NAME = "QUESTSKILLREQUIREMENTS";
+    private $QUEST_SKILL_REWARDS_TABLE_NAME = "QUESTSKILLREWARDS";
 
-    //Save title and entry for the blog post in the database
-    public function saveQuest ( $title, $entry ) {
-        $sql = "INSERT INTO ? ( blog_title, blog_text )
-                     VALUES ( ?, ?)";
-        $data = array( $this->QUEST_TABLE_NAME, $title, $entry );
+    /**
+     * Adds quest with data inputted
+     * 
+     * @param array $questColumns Dictionary containing columns for different quest tables
+     * @param array $questData Dictionary containing data for different quest tables
+     * @return array
+     */
+    public function addQuest ( $questColumns, $questData ) {    
+        
+        
+
+        $sql = "INSERT INTO QUESTS ( QUESTNAME, QUESTPOINTS, MEMBERS, DIFFICULTY, LENGTH, QUESTNUMBER )
+                     VALUES ( ?, ?, ?, ?, ?, ?)";
+        $data = array_merge(array( "QUESTS"), $questData );
         return $this->makeStatement($sql, $data);
     }
 

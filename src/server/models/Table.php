@@ -97,13 +97,13 @@ class Table
     public function retrieve($table, $columns, $whereCondition){
         $sql =  "";
         $formData =  array();
-        return $this->makeStatement($sql, $formData, SQLType::Insert);
+        return $this->makeStatement($sql, $formData, SQLType::Retrieve);
     }
 
     public function delete($table, $whereCondition){
         $sql =  "";
         $formData =  array();
-        return $this->makeStatement($sql, $formData, SQLType::Insert);
+        return $this->makeStatement($sql, $formData, SQLType::Delete);
     }
 
     /**
@@ -133,7 +133,7 @@ class Table
 
 abstract class SQLType{
     const Retrieve = 0;
-    const Insert = 0;
-    const Update = 0;
-    const Delete = 0;
+    const Insert = 1;
+    const Update = 2;
+    const Delete = 3;
 }
