@@ -1,3 +1,4 @@
+USE oldschool_tools;
 INSERT SKILLS (SKILLNAME,SKILLID)
 VALUES ('Attack',1);
 

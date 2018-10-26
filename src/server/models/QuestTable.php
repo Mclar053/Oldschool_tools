@@ -186,7 +186,7 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve);
+        return $this->makeStatement($sql, $data, SQLType::Retrieve, true);
     }
 
     /**
@@ -198,7 +198,7 @@ WHERE
         $sql = "
 SELECT
     current.QUESTID AS CURRENTQUESTID,
-    required.QUESTID AS REUQUIREDQUESTID,
+    required.QUESTID AS REQUIREDQUESTID,
     required.QUESTNAME AS NAME,
     required.QUESTDESCRIPTION AS DESCRIPTION,
     required.DIFFICULTY AS DIFFICULTY,

@@ -15,7 +15,7 @@ class Table
     }
 
     //Makes sql statements, prepares them and sends them to the database
-    protected function makeStatement($sql, $data = NULL, $sqlType){
+    protected function makeStatement($sql, $data = NULL, $sqlType, $singleRetrieve = false){
         try{
             $statement = $this->db->prepare($sql);
             $statement->execute( $data );
@@ -23,12 +23,14 @@ class Table
             //If the statement type is a retrieve
             if($sqlType === SQLType::Retrieve){
                 //Checking if data is null so can return all entries or just 1
-                if($data){
-                    $model = $statement->fetchObject();
-                }else{
+                if($singleRetrieve){
+                    $model=$statement->fetchObject();
+                }
+                else{
                     $statement->setFetchMode(PDO::FETCH_OBJ);
                     $model=$statement->fetchAll();
                 }
+                
                 return $model;
             }
             //If statement type is an insert

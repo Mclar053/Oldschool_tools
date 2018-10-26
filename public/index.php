@@ -7,17 +7,30 @@ if($db){
     echo "We are connected";
     $questTable = new QuestTable($db);
 
-    $details = $questTable->retrieveQuestDetails(149);
-    $questReqs = $questTable->retrieveQuestRequirements(149);
-    $skillReqs = $questTable->retrieveSkillRequirements(149);
-    $skillRews = $questTable->retrieveSkillRewards(149);
+    // getQuests($questTable);
 
-    echo "<br/>" . sizeof($questReqs)
-        . "<br/>" . sizeof($skillReqs)
-        . "<br/>" . sizeof($skillRews)
+    $questNumber = 50;
+
+    $details = $questTable->retrieveQuestDetails($questNumber);
+    $questReqs = $questTable->retrieveQuestRequirements($questNumber);
+    $skillReqs = $questTable->retrieveSkillRequirements($questNumber);
+    $skillRews = $questTable->retrieveSkillRewards($questNumber);
+
+    $questReqsLength = 0;
+    $skillReqsLength = 0;
+    $skillRewsLength = 0;
+
+    if($questReqs) $questReqsLength = sizeof($questReqs);
+    if($skillReqs) $skillReqsLength = sizeof($skillReqs);
+    if($skillRews) $skillRewsLength = sizeof($skillRews);
+
+
+    echo "<br/>" . $questReqsLength
+        . "<br/>" . $skillReqsLength
+        . "<br/>" . $skillRewsLength
         . "<br/>";
 
-    echo "ID: " . $details->QUESTID
+    echo "<br/><br/>ID: " . $details->QUESTID
         . "<br/>NAME: " . $details->NAME
         . "<br/>DESCRIPTION: " . $details->DESCRIPTION
         . "<br/>DIFFICULTY: " . $details->DIFFICULTY
@@ -26,7 +39,7 @@ if($db){
         . "<br/>QUESTPOINTS: " . $details->QUESTPOINTS;
 
     foreach($questReqs as $q) {
-        echo "ID: " . $q->QUESTID
+        echo "<br/><br/>ID: " . $q->CURRENTQUESTID
             . "<br/> REQUIREDQUESTID: " . $q->REQUIREDQUESTID
             . "<br/>NAME: " . $q->NAME
             . "<br/>DESCRIPTION: " . $q->DESCRIPTION
@@ -37,7 +50,7 @@ if($db){
     }
 
     foreach($skillReqs as $s){
-        echo "ID: " . $s->CURRENTQUESTID
+        echo "<br/><br/>ID: " . $s->CURRENTQUESTID
             . "<br/> SKILLNAME: " . $s->SKILLNAME
             . "<br/>LEVEL: " . $s->LEVEL
             . "<br/>BOOSTABLE: " . $s->BOOSTABLE
@@ -45,7 +58,7 @@ if($db){
     }
 
     foreach($skillRews as $s){
-        echo "ID: " . $s->CURRENTQUESTID
+        echo "<br/><br/>ID: " . $s->CURRENTQUESTID
             . "<br/> SKILLNAME: " . $s->SKILLNAME
             . "<br/>XP: " . $s->XP
             . "<br/>BOOSTABLE: " . $s->OPTIONAL
@@ -106,7 +119,7 @@ function getQuests($questTable){
     $arr = $questTable->getAllQuests();
 
     foreach($arr as $i){
-        echo $i->QUESTNAME . "<br/>";
+        echo $i->NAME . "<br/>";
     }
 }
 
