@@ -2,3 +2,4 @@
 \.idea/
 src/server/config.php
 .vscode/*
+.DS_Store
