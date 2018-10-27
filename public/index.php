@@ -7,6 +7,8 @@ if ($db) {
     echo "We are connected";
     $questTable = new QuestTable($db);
 
+    echo "<br/><h1>Oldschool Tools Test Page</h1>";
+
     // getQuests($questTable);
 
     // $questNumber = insertQuest($questTable, $result);
