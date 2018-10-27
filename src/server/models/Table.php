@@ -15,8 +15,9 @@ class Table
     }
 
     //Makes sql statements, prepares them and sends them to the database
-    protected function makeStatement($sql, $data = NULL, $sqlType, $singleRetrieve = false){
+    protected function makeStatement($sql, $data = NULL, $sqlType, $singleRetrieve = false, &$result){
         try{
+            $result = true;
             $statement = $this->db->prepare($sql);
             $statement->execute( $data );
 
@@ -39,6 +40,7 @@ class Table
                 return $this->db->lastInsertId();
             }
         }catch(Exception $e){
+            $result = false;
             $msg = "<p>You tried to run this sql: $sql<p>
                     <p>Exception: $e</p>";
             trigger_error($msg);

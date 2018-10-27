@@ -17,119 +17,143 @@ class QuestTable extends Table
      * @param $questRequirements Array array of dictionaries containing all columns to be inserted to the QUESTQUESTREQUIREMENTS table
      * @param $skillRequirements Array array of dictionaries containing all columns to be inserted to the QUESTSKILLREQUIREMENTS table
      * @param $skillRewards Array array of dictionaries containing all columns to be inserted to the QUESTSKILLREWARDS table
-     * @return mixed
+     * @param &$result States if any errors have occurred
+     * @return $questID The Quest ID that has been inserted. If error has occurred, return null.
      */
-    public function addQuest ( $questData, $questRequirements, $skillRequirements, $skillRewards ) {
-
-        try{
+    public function addQuest($questData, $questRequirements, $skillRequirements, $skillRewards, &$result)
+    {
+        $result = true;
+        try {
             // Begin the database transaction
             $this->db->beginTransaction();
 
             // QUESTS
             $sql = "INSERT INTO QUESTS ( QUESTNAME, QUESTPOINTS, MEMBERS, DIFFICULTY, LENGTH, QUESTNUMBER )
-                     VALUES ( ?, ?, ?, ?, ?, ? )";
+                 VALUES ( ?, ?, ?, ?, ?, ? )";
             $data = array(
                 $questData["QUESTNAME"],
                 $questData["QUESTPOINTS"],
                 $questData["MEMBERS"],
                 $questData["DIFFICULTY"],
                 $questData["LENGTH"],
-                $questData["QUESTNUMBER"]
+                $questData["QUESTNUMBER"],
             );
-            $questID = $this->makeStatement($sql, $data, SQLType::Insert);
+            $questID = $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
 
             echo $questID;
             echo $this->db->lastInsertId();
 
-            // QUEST REQUIREMENTS
-            foreach($questRequirements as $questReq){
-                $sql = "INSERT INTO QUESTQUESTREQUIREMENTS ( QUESTID, REQUIREDQUESTID )
-                     VALUES ( ?, ? )";
-                $data = array(
-                    $questID,
-                    $questReq
-                );
-                $this->makeStatement($sql, $data, SQLType::Insert);
+            if ($result) {
+                // QUEST REQUIREMENTS
+                foreach ($questRequirements as $questReq) {
+                    $sql = "INSERT INTO QUESTQUESTREQUIREMENTS ( QUESTID, REQUIREDQUESTID )
+                        VALUES ( ?, ? )";
+                    $data = array(
+                        $questID,
+                        $questReq,
+                    );
+                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
+                }
             }
 
-
-            // SKILL REQUIREMENTS
-            foreach($skillRequirements as $skillReq){
-                $sql = "INSERT INTO QUESTSKILLREQUIREMENTS ( QUESTID, SKILLID, LEVEL, BOOSTABLE, COMMENT )
-                     VALUES ( ?, ?, ?, ?, ? )";
-                $data = array(
-                    $questID,
-                    $skillReq["SKILLID"],
-                    $skillReq["LEVEL"],
-                    $skillReq["BOOSTABLE"],
-                    $skillReq["COMMENT"]
-                );
-                $this->makeStatement($sql, $data, SQLType::Insert);
-          }
-
-
-            // SKILL REQUIREMENTS
-            foreach($skillRewards as $skillRew){
-                $sql = "INSERT INTO QUESTSKILLREWARDS ( QUESTID, SKILLID, XPREWARD, CONDITIONAL, OPTIONAL, COMMENT )
-                     VALUES ( ?, ?, ?, ?, ?, ?)";
-                $data = array(
-                    $questID,
-                    $skillRew["SKILLID"],
-                    $skillRew["XPREWARD"],
-                    $skillRew["CONDITIONAL"],
-                    $skillRew["OPTIONAL"],
-                    $skillRew["COMMENT"]
-                );
-                $this->makeStatement($sql, $data, SQLType::Insert);
+            if ($result) {
+                // SKILL REQUIREMENTS
+                foreach ($skillRequirements as $skillReq) {
+                    $sql = "INSERT INTO QUESTSKILLREQUIREMENTS ( QUESTID, SKILLID, LEVEL, BOOSTABLE, COMMENT )
+                        VALUES ( ?, ?, ?, ?, ? )";
+                    $data = array(
+                        $questID,
+                        $skillReq["SKILLID"],
+                        $skillReq["LEVEL"],
+                        $skillReq["BOOSTABLE"],
+                        $skillReq["COMMENT"],
+                    );
+                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
+                }
             }
 
-            $this->db->commit();
+            if ($result) {
+                // SKILL REQUIREMENTS
+                foreach ($skillRewards as $skillRew) {
+                    $sql = "INSERT INTO QUESTSKILLREWARDS ( QUESTID, SKILLID, XPREWARD, CONDITIONAL, OPTIONAL, COMMENT )
+                        VALUES ( ?, ?, ?, ?, ?, ?)";
+                    $data = array(
+                        $questID,
+                        $skillRew["SKILLID"],
+                        $skillRew["XPREWARD"],
+                        $skillRew["CONDITIONAL"],
+                        $skillRew["OPTIONAL"],
+                        $skillRew["COMMENT"],
+                    );
+                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
+                }
+            }
 
-            return true;
-        }
-        catch(Exception $e){
+            if ($result) {
+                $this->db->commit();
+            } else {
+                echo "Insert Quest Failed";
+                $this->db->rollback();
+            }
+
+            return $questID;
+        } catch (Exception $e) {
             echo "Rollback";
             $this->db->rollback();
             echo $e;
-            return false;
+            return null;
         }
     }
 
-
     /**
      * @param $id
+     * @param &$result States if any errors have occurred
      * @return mixed
      */
-    public function deleteQuest ($id){
+    public function deleteQuest($id, &$result)
+    {
 
-        try{
+        try {
+            $result = true;
             $this->db->beginTransaction();
 
-            $sql = "DELETE FROM QUESTSKILLREWARDS WHERE QUESTID = ?";
-            $data = array($id);
-            $this->makeStatement($sql, $data);
+            if ($result) {
+                $sql = "DELETE FROM QUESTSKILLREWARDS WHERE QUESTID = ?";
+                $data = array($id);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+            }
 
-            $sql = "DELETE FROM QUESTSKILLREQUIREMENTS WHERE QUESTID = ?";
-            $data = array($id);
-            $this->makeStatement($sql, $data);
+            if ($result) {
+                $sql = "DELETE FROM QUESTSKILLREQUIREMENTS WHERE QUESTID = ?";
+                $data = array($id);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+            }
 
-            $sql = "DELETE FROM QUESTQUESTREQUIREMENTS WHERE QUESTID = ?";
-            $data = array($id);
-            $this->makeStatement($sql, $data);
+            if ($result) {
+                $sql = "DELETE FROM QUESTQUESTREQUIREMENTS WHERE QUESTID = ?";
+                $data = array($id);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+            }
 
-            $sql = "DELETE FROM QUESTS WHERE QUESTID = ?";
-            $data = array($id);
-            $this->makeStatement($sql, $data);
+            if ($result) {
+                $sql = "DELETE FROM QUESTS WHERE QUESTID = ?";
+                $data = array($id);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+            }
 
-            $this->db->commit();
+            if ($result) {
+                $this->db->commit();
+            } else {
+                echo "Delete Quest failed";
+                $this->db->rollback();
+            }
 
             return true;
-        } catch( Exception $e ){
+        } catch (Exception $e) {
             $this->db->rollback();
             echo $e;
             return false;
         }
-
 
     }
 
@@ -137,19 +161,24 @@ class QuestTable extends Table
      * @param $id
      * @param $title
      * @param $entry
+     * @param &$result States if any errors have occurred
      * @return mixed
      */
-    public function updateQuest($id, $title, $entry){
+    public function updateQuest($id, $title, $entry, &$result)
+    {
+        $result = true;
         $sql = "UPDATE blog_entry SET blog_title = ?, blog_text = ? WHERE blog_id = ?";
         $data = array($title, $entry, $id);
-        return $this->makeStatement($sql, $data);
+        return $this->makeStatement($sql, $data, SQLType::Update, false, $result);
     }
 
     /**
      * Returns all quest details
+     * @param &$result States if any errors have occurred
      * @return mixed
      */
-    public function getAllQuests(){
+    public function getAllQuests(&$result)
+    {
         $returnSQL = "
 SELECT
     QUESTS.QUESTID AS QUESTID,
@@ -161,16 +190,18 @@ SELECT
     QUESTS.QUESTPOINTS AS QUESTPOINTS
 FROM
   QUESTS";
-        return $this->makeStatement($returnSQL,null, SQLType::Retrieve);
+        return $this->makeStatement($returnSQL, null, SQLType::Retrieve, false, $result);
     }
-
 
     /**
      * Retrieves quest details of specified quest
      * @param $id Quest Id
+     * @param &$result States if any errors have occurred
      * @return mixed Datatable with the retrieved quest
      */
-    public function retrieveQuestDetails($id){
+    public function retrieveQuestDetails($id, &$result)
+    {
+        $result = true;
         $sql = "
 SELECT
     QUESTS.QUESTID AS QUESTID,
@@ -186,15 +217,18 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve, true);
+        return $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result);
     }
 
     /**
      * Retrieves all quest requirements for a specified quest
      * @param $id Quest Id
+     * @param &$result States if any errors have occurred
      * @return mixed Datatable with all quests required for the specified quest
      */
-    public function retrieveQuestRequirements($id){
+    public function retrieveQuestRequirements($id, &$result)
+    {
+        $result = true;
         $sql = "
 SELECT
     current.QUESTID AS CURRENTQUESTID,
@@ -219,15 +253,18 @@ WHERE
   current.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve);
+        return $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result);
     }
 
     /**
      * Retrieves all skill requirements for a specified quest
      * @param $id Quest Id
+     * @param &$result States if any errors have occurred
      * @return mixed Datatable with all skill levels required for the specified quest
      */
-    public function retrieveSkillRequirements($id){
+    public function retrieveSkillRequirements($id, &$result)
+    {
+        $result = true;
         $sql = "
 SELECT
     QUESTS.QUESTID AS CURRENTQUESTID,
@@ -249,15 +286,18 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve);
+        return $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result);
     }
 
     /**
      * Retrieves all skill rewards from a specified quest
      * @param $id Quest Id
+     * @param &$result States if any errors have occurred
      * @return mixed Datatable with all skill xp rewarded from the specified quest
      */
-    public function retrieveSkillRewards($id){
+    public function retrieveSkillRewards($id, &$result)
+    {
+        $result = true;
         $sql = "
 SELECT
     QUESTS.QUESTID AS CURRENTQUESTID,
@@ -280,7 +320,7 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve);
+        return $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result);
     }
 
 }
