@@ -42,7 +42,6 @@ if ($selectedQuest ) {
     else {
         printError("An error has occurred while retrieving a quest.");
     }
-    printError("An error has occurred while retrieving a quest.");
     // printError("An error has occurred while retrieving the quest: %s. ID: %u", array($questDetails->NAME, $questDetails->QUESTID));
 
 } else {
