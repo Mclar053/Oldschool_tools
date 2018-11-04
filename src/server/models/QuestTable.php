@@ -187,7 +187,24 @@ SELECT
     QUESTS.DIFFICULTY AS DIFFICULTY,
     QUESTS.LENGTH AS LENGTH,
     QUESTS.MEMBERS AS MEMBERS,
-    QUESTS.QUESTPOINTS AS QUESTPOINTS
+    QUESTS.QUESTPOINTS AS QUESTPOINTS,
+    (CASE
+        WHEN QUESTS.MEMBERS = 1 THEN 'Members'
+        ELSE 'Free to Play' END) AS MEMBERSTEXT,
+    (CASE
+        WHEN QUESTS.LENGTH = 0 THEN 'Short'
+        WHEN QUESTS.LENGTH = 1 THEN 'Medium'
+        WHEN QUESTS.LENGTH = 2 THEN 'Long'
+        WHEN QUESTS.LENGTH = 3 THEN 'Very Long'
+        END) AS LENGTHTEXT,
+    (CASE
+        WHEN QUESTS.DIFFICULTY = 0 THEN 'Novice'
+        WHEN QUESTS.DIFFICULTY = 1 THEN 'Intermediate'
+        WHEN QUESTS.DIFFICULTY = 2 THEN 'Experienced'
+        WHEN QUESTS.DIFFICULTY = 3 THEN 'Master'
+        WHEN QUESTS.DIFFICULTY = 4 THEN 'Grandmaster'
+        WHEN QUESTS.DIFFICULTY = 5 THEN 'Special'
+        END) AS DIFFICULTYTEXT
 FROM
   QUESTS";
         return $this->makeStatement($returnSQL, null, SQLType::Retrieve, false, $result);
@@ -210,7 +227,24 @@ SELECT
     QUESTS.DIFFICULTY AS DIFFICULTY,
     QUESTS.LENGTH AS LENGTH,
     QUESTS.MEMBERS AS MEMBERS,
-    QUESTS.QUESTPOINTS AS QUESTPOINTS
+    QUESTS.QUESTPOINTS AS QUESTPOINTS,
+    (CASE
+        WHEN QUESTS.MEMBERS = 1 THEN 'Members'
+        ELSE 'Free to Play' END) AS MEMBERSTEXT,
+    (CASE
+        WHEN QUESTS.LENGTH = 0 THEN 'Short'
+        WHEN QUESTS.LENGTH = 1 THEN 'Medium'
+        WHEN QUESTS.LENGTH = 2 THEN 'Long'
+        WHEN QUESTS.LENGTH = 3 THEN 'Very Long'
+        END) AS LENGTHTEXT,
+    (CASE
+        WHEN QUESTS.DIFFICULTY = 0 THEN 'Novice'
+        WHEN QUESTS.DIFFICULTY = 1 THEN 'Intermediate'
+        WHEN QUESTS.DIFFICULTY = 2 THEN 'Experienced'
+        WHEN QUESTS.DIFFICULTY = 3 THEN 'Master'
+        WHEN QUESTS.DIFFICULTY = 4 THEN 'Grandmaster'
+        WHEN QUESTS.DIFFICULTY = 5 THEN 'Special'
+        END) AS DIFFICULTYTEXT
 FROM
   QUESTS
 WHERE
@@ -238,7 +272,24 @@ SELECT
     required.DIFFICULTY AS DIFFICULTY,
     required.LENGTH AS LENGTH,
     required.MEMBERS AS MEMBERS,
-    required.QUESTPOINTS AS QUESTPOINTS
+    required.QUESTPOINTS AS QUESTPOINTS,
+    (CASE
+        WHEN required.MEMBERS = 1 THEN 'Members'
+        ELSE 'Free to Play' END) AS MEMBERSTEXT,
+    (CASE
+        WHEN required.LENGTH = 0 THEN 'Short'
+        WHEN required.LENGTH = 1 THEN 'Medium'
+        WHEN required.LENGTH = 2 THEN 'Long'
+        WHEN required.LENGTH = 3 THEN 'Very Long'
+        END) AS LENGTHTEXT,
+    (CASE
+        WHEN required.DIFFICULTY = 0 THEN 'Novice'
+        WHEN required.DIFFICULTY = 1 THEN 'Intermediate'
+        WHEN required.DIFFICULTY = 2 THEN 'Experienced'
+        WHEN required.DIFFICULTY = 3 THEN 'Master'
+        WHEN required.DIFFICULTY = 4 THEN 'Grandmaster'
+        WHEN required.DIFFICULTY = 5 THEN 'Special'
+        END) AS DIFFICULTYTEXT
 FROM
   QUESTS current
 INNER JOIN

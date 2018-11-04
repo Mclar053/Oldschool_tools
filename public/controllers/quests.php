@@ -21,9 +21,9 @@ if($result) {
         echo '<td>' . $quest->QUESTID . '</td>';
         echo '<td> <a href="index.php?page=quest&amp;id=' . $quest->QUESTID . '">' . $quest->NAME . '</a></td>';
         echo '<td>' . $quest->DESCRIPTION . '</td>';
-        echo '<td>' . $quest->DIFFICULTY . '</td>';
-        echo '<td>' . $quest->LENGTH . '</td>';
-        echo '<td>' . $quest->MEMBERS . '</td>';
+        echo '<td>' . $quest->DIFFICULTYTEXT . '</td>';
+        echo '<td>' . $quest->LENGTHTEXT . '</td>';
+        echo '<td>' . $quest->MEMBERSTEXT . '</td>';
         echo '<td>' . $quest->QUESTPOINTS . '</td>';
         echo '</tr>';
     }

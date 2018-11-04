@@ -8,7 +8,6 @@
 
 /**
  * TODO
- * - Manage resource here (Members/Free to Play) (Short, Medium, Long) (Novice, Intermidiate, Experienced, Master, Grandmaster, Special)
  * - Add styling to view
  */
 
