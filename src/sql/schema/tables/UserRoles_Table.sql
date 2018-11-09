@@ -1,0 +1,8 @@
+USE oldschool_tools;
+CREATE TABLE USERROLES(
+  USERROLEID                INT NOT NULL AUTO_INCREMENT,
+  ROLENAME                  NVARCHAR(30) NOT NULL,
+  ROLECODE                  NVARCHAR(3) NOT NULL,
+  COMMENT                   NVARCHAR(1000),
+  PRIMARY KEY (USERROLEID)
+);

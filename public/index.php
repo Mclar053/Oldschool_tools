@@ -14,6 +14,5 @@ if ( $navigation ) {
 // include "views/nav.php";
 include_once "controllers/$contrl.php";
 
-
 // include "templates/footer.html";
 ?>

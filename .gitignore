@@ -3,3 +3,4 @@
 src/server/config.php
 .vscode/*
 .DS_Store
+src/sql/staticData/USERS.sql
