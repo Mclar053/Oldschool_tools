@@ -13,12 +13,13 @@ $messages = array();
 // Messages class 
 class Message
 {
-    private $message, $code, $type;
+    private $message, $code, $type, $timecode;
 
     public function __construct ($message, $code, $type ) {
         $this->message = $message;
         $this->code = $code;
         $this->type = $type;
+        $this->timecode = getTimeToMicroseconds();
     }
 
     /**
@@ -31,6 +32,7 @@ class Message
             echo "<br/>";
         }
         else {
+            echo $this->timecode . "</br>";
             echo "<b>Message Type: </b>" . $this->type . "<br/>";
             echo "<b>Code: </b>" . $this->code . "<br/>";
             echo "<b>Message: </b>" . $this->message . "<br/>";
