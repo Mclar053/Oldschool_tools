@@ -20,9 +20,10 @@ class QuestTable extends Table
      * @param &$result States if any errors have occurred
      * @return $questID The Quest ID that has been inserted. If error has occurred, return null.
      */
-    public function addQuest($questData, $questRequirements, $skillRequirements, $skillRewards, &$result)
+    public function addQuest($questData, $questRequirements, $skillRequirements, $skillRewards, &$result, &$messages)
     {
         $result = true;
+        $messages = array();
         try {
             // Begin the database transaction
             $this->db->beginTransaction();
@@ -38,7 +39,8 @@ class QuestTable extends Table
                 $questData["LENGTH"],
                 $questData["QUESTNUMBER"],
             );
-            $questID = $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
+            $questID = $this->makeStatement($sql, $data, SQLType::Insert, false, $result, $localMessages);
+            $messages = array_merge($messages, $localMessages);
 
             echo $questID;
             echo $this->db->lastInsertId();
@@ -52,7 +54,8 @@ class QuestTable extends Table
                         $questID,
                         $questReq,
                     );
-                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
+                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result, $localMessages);
+                    $messages = array_merge($messages, $localMessages);
                 }
             }
 
@@ -68,7 +71,8 @@ class QuestTable extends Table
                         $skillReq["BOOSTABLE"],
                         $skillReq["COMMENT"],
                     );
-                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
+                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result, $localMessages);
+                    $messages = array_merge($messages, $localMessages);
                 }
             }
 
@@ -85,14 +89,18 @@ class QuestTable extends Table
                         $skillRew["OPTIONAL"],
                         $skillRew["COMMENT"],
                     );
-                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result);
+                    $this->makeStatement($sql, $data, SQLType::Insert, false, $result, $localMessages);
+                    $messages = array_merge($messages, $localMessages);
                 }
             }
 
             if ($result) {
                 $this->db->commit();
             } else {
-                echo "Insert Quest Failed";
+                $msg = "Insert Quest Failed. Rolling back.";
+                $message = new Message($msg, 3, "Error");
+                array_push( $messages, $message );
+
                 $this->db->rollback();
             }
 
@@ -110,41 +118,49 @@ class QuestTable extends Table
      * @param &$result States if any errors have occurred
      * @return mixed
      */
-    public function deleteQuest($id, &$result)
+    public function deleteQuest($id, &$result, &$messages)
     {
 
         try {
             $result = true;
+            $messages = array();
             $this->db->beginTransaction();
 
             if ($result) {
                 $sql = "DELETE FROM QUESTSKILLREWARDS WHERE QUESTID = ?";
                 $data = array($id);
-                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result, $localMessages);
+                $messages = array_merge($messages, $localMessages);
             }
 
             if ($result) {
                 $sql = "DELETE FROM QUESTSKILLREQUIREMENTS WHERE QUESTID = ?";
                 $data = array($id);
-                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result, $localMessages);
+                $messages = array_merge($messages, $localMessages);
             }
 
             if ($result) {
                 $sql = "DELETE FROM QUESTQUESTREQUIREMENTS WHERE QUESTID = ?";
                 $data = array($id);
-                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result, $localMessages);
+                $messages = array_merge($messages, $localMessages);
             }
 
             if ($result) {
                 $sql = "DELETE FROM QUESTS WHERE QUESTID = ?";
                 $data = array($id);
-                $this->makeStatement($sql, $data, SQLType::Delete, false, $result);
+                $this->makeStatement($sql, $data, SQLType::Delete, false, $result, $localMessages);
+                $messages = array_merge($messages, $localMessages);
             }
 
             if ($result) {
                 $this->db->commit();
             } else {
-                echo "Delete Quest failed";
+                $msg = "Delete Quest failed. Rolling back.";
+                $message = new Message($msg, 2, "Error");
+                array_push( $messages, $message );
+
                 $this->db->rollback();
             }
 
@@ -164,12 +180,17 @@ class QuestTable extends Table
      * @param &$result States if any errors have occurred
      * @return mixed
      */
-    public function updateQuest($id, $title, $entry, &$result)
+    public function updateQuest($id, $title, $entry, &$result, &$messages)
     {
         $result = true;
+        $messages = array();
+
         $sql = "UPDATE blog_entry SET blog_title = ?, blog_text = ? WHERE blog_id = ?";
         $data = array($title, $entry, $id);
-        return $this->makeStatement($sql, $data, SQLType::Update, false, $result);
+
+        $returnObj = $this->makeStatement($sql, $data, SQLType::Update, false, $result, $localMessages);
+        $messages = array_merge($messages, $localMessages);
+        return $returnObj;
     }
 
     /**
@@ -177,8 +198,11 @@ class QuestTable extends Table
      * @param &$result States if any errors have occurred
      * @return mixed
      */
-    public function getAllQuests(&$result)
+    public function getAllQuests(&$result, &$messages)
     {
+        $result = true;
+        $messages = array();
+
         $returnSQL = "
 SELECT
     QUESTS.QUESTID AS QUESTID,
@@ -207,7 +231,10 @@ SELECT
         END) AS DIFFICULTYTEXT
 FROM
   QUESTS";
-        return $this->makeStatement($returnSQL, null, SQLType::Retrieve, false, $result);
+        $returnObj = $this->makeStatement($returnSQL, null, SQLType::Retrieve, false, $result, $localMessages);
+        $messages = array_merge($messages, $localMessages);
+        return $returnObj;
+
     }
 
     /**
@@ -216,9 +243,11 @@ FROM
      * @param &$result States if any errors have occurred
      * @return mixed Datatable with the retrieved quest
      */
-    public function retrieveQuestDetails($id, &$result)
+    public function retrieveQuestDetails($id, &$result, &$messages)
     {
         $result = true;
+        $messages = array();
+
         $sql = "
 SELECT
     QUESTS.QUESTID AS QUESTID,
@@ -251,7 +280,9 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result);
+        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
+        $messages = array_merge($messages, $localMessages);
+        return $returnObj;
     }
 
     /**
@@ -260,9 +291,11 @@ WHERE
      * @param &$result States if any errors have occurred
      * @return mixed Datatable with all quests required for the specified quest
      */
-    public function retrieveQuestRequirements($id, &$result)
+    public function retrieveQuestRequirements($id, &$result, &$messages)
     {
         $result = true;
+        $messages = array();
+
         $sql = "
 SELECT
     current.QUESTID AS CURRENTQUESTID,
@@ -304,7 +337,9 @@ WHERE
   current.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result);
+        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
+        $messages = array_merge($messages, $localMessages);
+        return $returnObj;
     }
 
     /**
@@ -313,9 +348,11 @@ WHERE
      * @param &$result States if any errors have occurred
      * @return mixed Datatable with all skill levels required for the specified quest
      */
-    public function retrieveSkillRequirements($id, &$result)
+    public function retrieveSkillRequirements($id, &$result, &$messages)
     {
         $result = true;
+        $messages = array();
+
         $sql = "
 SELECT
     QUESTS.QUESTID AS CURRENTQUESTID,
@@ -337,7 +374,9 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result);
+        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
+        $messages = array_merge($messages, $localMessages);
+        return $returnObj;
     }
 
     /**
@@ -346,9 +385,11 @@ WHERE
      * @param &$result States if any errors have occurred
      * @return mixed Datatable with all skill xp rewarded from the specified quest
      */
-    public function retrieveSkillRewards($id, &$result)
+    public function retrieveSkillRewards($id, &$result, &$messages)
     {
         $result = true;
+        $messages = array();
+        
         $sql = "
 SELECT
     QUESTS.QUESTID AS CURRENTQUESTID,
@@ -371,7 +412,9 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result);
+        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result, $localMessages);
+        $messages = array_merge($messages, $localMessages);
+        return $returnObj;
     }
 
 }

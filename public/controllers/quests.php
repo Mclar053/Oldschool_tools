@@ -9,7 +9,8 @@
 include_once $HOME_DIRECTORY . 'src/server/models/QuestTable.php';
 $questTable = new QuestTable($db);
 
-$allQuests = $questTable->getAllQuests($result);
+$allQuests = $questTable->getAllQuests($result, $localMessages);
+$messages = array_merge($messages, $localMessages);
 
 if($result) {
     echo '<table>';

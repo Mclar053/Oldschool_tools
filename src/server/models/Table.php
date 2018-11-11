@@ -15,9 +15,10 @@ class Table
     }
 
     //Makes sql statements, prepares them and sends them to the database
-    protected function makeStatement($sql, $data = NULL, $sqlType, $singleRetrieve = false, &$result){
+    protected function makeStatement($sql, $data = NULL, $sqlType, $singleRetrieve = false, &$result, &$messages){
         try{
             $result = true;
+            $messages = array();
             $statement = $this->db->prepare($sql);
             $statement->execute( $data );
 
@@ -43,7 +44,8 @@ class Table
             $result = false;
             $msg = "<p>You tried to run this sql: $sql<p>
                     <p>Exception: $e</p>";
-            trigger_error($msg);
+            $message = new Message($msg, 0, "Exception");
+            array_push($messages, $message);
         }
     }
 
