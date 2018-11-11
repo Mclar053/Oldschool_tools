@@ -337,7 +337,7 @@ WHERE
   current.QUESTID = ?
 ";
         $data = array($id);
-        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
+        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result, $localMessages);
         $messages = array_merge($messages, $localMessages);
         return $returnObj;
     }
@@ -374,7 +374,7 @@ WHERE
   QUESTS.QUESTID = ?
 ";
         $data = array($id);
-        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
+        $returnObj = $this->makeStatement($sql, $data, SQLType::Retrieve, false, $result, $localMessages);
         $messages = array_merge($messages, $localMessages);
         return $returnObj;
     }
@@ -389,7 +389,7 @@ WHERE
     {
         $result = true;
         $messages = array();
-        
+
         $sql = "
 SELECT
     QUESTS.QUESTID AS CURRENTQUESTID,
