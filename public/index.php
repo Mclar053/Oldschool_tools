@@ -4,6 +4,8 @@ include_once '../src/server/constants.php';
 include_once '../src/server/functions.php';
 include_once '../src/server/messages.php';
 
+session_start();
+
 $navigation = isset( $_GET['page'] );
 if ( $navigation ) {
     //prepare to load corresponding controller
@@ -13,7 +15,7 @@ if ( $navigation ) {
     $contrl = "quests";
 }
 // include "templates/header.html";
-// include "views/nav.php";
+include "templates/nav.php";
 include_once "controllers/$contrl.php";
 
 // include "templates/footer.html";

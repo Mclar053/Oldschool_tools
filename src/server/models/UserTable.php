@@ -1,5 +1,5 @@
 <?php
-
+include "Table.php";
 
 /**
  * Name: User Table
@@ -9,12 +9,39 @@
 
  class UserTable extends Table
  {
-    public function addUser(&$result, &$messages)
+    /**
+     * Adds a new user to the database
+     * @param $username
+     * @param $password
+     * @param &$userID
+     * @param &$result
+     * @param &$messages
+    */
+    public function addUser($username, $password, &$userID, &$result, &$messages)
     {
         $result = true;
         $messages = array();
         try {
+            if(!$this->checkUserExists($username, $result, $localMessages)){
+                $messages = array_merge($messgaes, $localMessages);
+                if($result){
+                    $sql = "
+                        INSERT INTO USERS(EMAILADDRESS, PASSWORD, USERROLEID)
+                        VALUES (?, ?, ?);
+                        ";
+                    
+                    $data = array($username, password_hash($password, PASSWORD_DEFAULT), 3);
 
+                    $userID = $this->makeStatement($sql, $data, SQLType::Insert, false, $result, $localMessages);
+                    $messages = array_merge($messgaes, $localMessages);
+                }
+            }
+            else{
+                $result = false;
+                $msg = "The user entered already exists.";
+                $message = new Message(printf($msg, array($username)), 4, "Information");
+                array_push($messages, $message);
+            }
         }
         catch(Exception $e){
             echo "Rollback";
@@ -28,10 +55,11 @@
      * Checks password for a given username and password
      * @param $username The username/email address of the given user
      * @param $password The unverified password of the given user
+     * @param &$userID The ID of the retrieved user
      * @param &$result States whether an operation has failed.
      * @return bool States whether then the user has successfully been verified
      */
-    public function checkPassword($username, $password, &$result, &$messages)
+    public function checkPassword($username, $password, &$userID, &$result, &$messages)
     {
         $result = true;
         $messages = array();
@@ -41,11 +69,12 @@
             $messages = array_merge($messages, $localMessages);
 
             // If the user exists and there were no problems retrieving the user data
-            if($result && !is_null($user)) {
+            if($result && $user) {
                 
                 // Check the users password that has been entered with the hash that has been saved against the password
                 // If they are not equal then they user cannot login
                 if(password_verify($password, $user->PASSWORD)) {
+                    $userID = $user->USERID;
                     return true;
                 }
             }
@@ -87,6 +116,7 @@
             
             $sql = "
             SELECT
+                USERS.USERID AS USERID,
                 USERS.EMAILADDRESS AS EMAILADDRESS,
                 USERS.PASSWORD AS PASSWORD,
                 USERROLES.ROLENAME AS ROLENAME,
@@ -100,8 +130,9 @@
             ";
 
             $data = array($username);
-            return $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
+            $object = $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
             $messages = array_merge($messages, $localMessages);
+            return $object;
         }
         catch(Exception $e){
             echo $e;
@@ -114,9 +145,23 @@
         $result = true;
         $messages = array();
         try {
+            $sql = "
+            SELECT 
+                USERS.EMAILADDRESS AS EMAILADDRESS
+            FROM
+                USERS
+            WHERE
+                EMAILADDRESS = ?;
+            ";
             
-        $data = array($id);
-        return $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result);
+            $data = array($username);
+            $object = $this->makeStatement($sql, $data, SQLType::Retrieve, true, $result, $localMessages);
+            $messages = array_merge($messages, $localMessages);
+
+            if($result && $object){
+                return true;
+            }
+            return false;
         }
         catch(Exception $e){
             echo $e;
